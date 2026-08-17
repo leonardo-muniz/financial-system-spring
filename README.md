@@ -138,7 +138,7 @@ Com volumes persistentes e portas expostas para desenvolvimento local.
     cd transaction-service
     mvn spring-boot:run
 
-### 🔍 6. Verificar serviços registrados no Eureka
+### 🔍 6. Verificar serviços registrados no Eureka (Discovery Server)
 
 Acesse:
 
