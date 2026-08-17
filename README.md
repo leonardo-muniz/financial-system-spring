@@ -330,14 +330,16 @@ Cassandra ou DynamoDB como event store distribuído.
 
 ## 🖼️ Evidências (Prints para o TP1)
 
+[ ] Startup dos quatro módulos
+
 [ ] Tela do Eureka com serviços registrados
+
+[ ] Comunicação usando Nome Lógico
+
+[ ] Bancos separados funcionando
 
 [ ] Chamadas passando pelo Gateway
 
 [ ] Logs de Retry / Circuit Breaker / Fallback
 
-[ ] Bancos separados funcionando
-
 [ ] Simulação de falha do account-service
-
-[ ] Startup dos quatro módulos
