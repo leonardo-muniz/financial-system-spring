@@ -8,6 +8,7 @@ import br.edu.infnet.leonardomuniz.transaction.application.dto.AccountDto;
 import br.edu.infnet.leonardomuniz.transaction.application.dto.TransactionResponse;
 import br.edu.infnet.leonardomuniz.transaction.domain.exception.InsufficientBalanceException;
 import br.edu.infnet.leonardomuniz.transaction.domain.model.Transaction;
+import br.edu.infnet.leonardomuniz.transaction.domain.model.TransactionType;
 import br.edu.infnet.leonardomuniz.transaction.infrastructure.client.AccountClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -23,7 +24,7 @@ public class TransactionService {
 
     @CircuitBreaker(name = "accountService", fallbackMethod = "fallbackAccount")
     @Retry(name = "accountService")
-    public TransactionResponse createForAccount(Long accountId, Double amount) {
+    public TransactionResponse createForAccount(Long accountId, Double amount, TransactionType type) {
 
         AccountDto account = accountClient.getAccount(accountId);
 
