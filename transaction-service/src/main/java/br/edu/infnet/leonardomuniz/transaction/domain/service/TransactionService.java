@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import br.edu.infnet.leonardomuniz.transaction.application.dto.AccountDto;
+import br.edu.infnet.leonardomuniz.transaction.domain.exception.InsufficientBalanceException;
 import br.edu.infnet.leonardomuniz.transaction.domain.model.Transaction;
 import br.edu.infnet.leonardomuniz.transaction.infrastructure.client.AccountClient;
 
@@ -18,7 +19,10 @@ public class TransactionService {
     }
 
     public Transaction createForAccount(Long accountId, Double amount) {
+
         AccountDto account = accountClient.getAccount(accountId);
+
+        if (account.getBalance() < amount) throw new InsufficientBalanceException(account.getBalance(), amount);
 
         return Transaction.builder()
                 .id(UUID.randomUUID().toString())
