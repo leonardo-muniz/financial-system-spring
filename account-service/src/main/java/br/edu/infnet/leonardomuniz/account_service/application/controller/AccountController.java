@@ -21,6 +21,7 @@ public class AccountController {
 
     @GetMapping("/{id}")
     public AccountResponse getAccount(@PathVariable Long id) {
+        service.validateAccountExists(id);
         Account account = service.getById(id);
 
         return AccountResponse.builder()
