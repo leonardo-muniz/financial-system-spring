@@ -57,6 +57,8 @@ public class TransactionService {
             .status("SUCCESS")
             .build();
 
+        updateDailyTotal(accountId, amount);
+
         return TransactionResponse.builder()
                 .transactionId(tx.getId())
                 .accountId(tx.getAccountId())
@@ -90,6 +92,10 @@ public class TransactionService {
         double used = dailyTotals.getOrDefault(accountId, 0.0);
         if (used + amount > DAILY_LIMIT)
             throw new DailyLimitExceededException(amount, DAILY_LIMIT - used);
+    }
+
+    private void updateDailyTotal(Long accountId, Double amount) {
+        dailyTotals.put(accountId, dailyTotals.getOrDefault(accountId, 0.0) + amount);
     }
 
     // Fallback chamado quando o Circuit Breaker abre ou o Retry esgota
