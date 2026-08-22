@@ -1,5 +1,7 @@
 package br.edu.infnet.leonardomuniz.transaction.domain.service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import br.edu.infnet.leonardomuniz.transaction.application.dto.AccountDto;
 import br.edu.infnet.leonardomuniz.transaction.application.dto.TransactionResponse;
 import br.edu.infnet.leonardomuniz.transaction.domain.exception.AccountBlockedException;
 import br.edu.infnet.leonardomuniz.transaction.domain.exception.AccountClosedException;
+import br.edu.infnet.leonardomuniz.transaction.domain.exception.DailyLimitExceededException;
 import br.edu.infnet.leonardomuniz.transaction.domain.exception.InsufficientBalanceException;
 import br.edu.infnet.leonardomuniz.transaction.domain.exception.InvalidTransactionTypeException;
 import br.edu.infnet.leonardomuniz.transaction.domain.exception.MaxTransactionAmountExceededException;
@@ -24,6 +27,10 @@ public class TransactionService {
 
     // Limites
     private static final double MAX_TRANSACTION_AMOUNT = 2000.0;
+    private static final double DAILY_LIMIT = 5000.0;
+
+    // Controle simples de limite diário
+    private final Map<Long, Double> dailyTotals = new HashMap<>();
 
     public TransactionService(AccountClient accountClient) {
         this.accountClient = accountClient;
@@ -38,6 +45,7 @@ public class TransactionService {
         validateAccountStatus(account);
         validateTransactionType(type);
         validateMaxAmount(amount);
+        validateDailyLimit(accountId, amount);
 
         if (account.getBalance() < amount) throw new InsufficientBalanceException(account.getBalance(), amount);
 
@@ -76,6 +84,12 @@ public class TransactionService {
     private void validateMaxAmount(Double amount) {
         if (amount > MAX_TRANSACTION_AMOUNT)
             throw new MaxTransactionAmountExceededException(amount, MAX_TRANSACTION_AMOUNT);
+    }
+
+    private void validateDailyLimit(Long accountId, Double amount) {
+        double used = dailyTotals.getOrDefault(accountId, 0.0);
+        if (used + amount > DAILY_LIMIT)
+            throw new DailyLimitExceededException(amount, DAILY_LIMIT - used);
     }
 
     // Fallback chamado quando o Circuit Breaker abre ou o Retry esgota
