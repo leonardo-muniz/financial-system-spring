@@ -7,4 +7,5 @@ public class AccountDto {
     Long id;
     String ownerName;
     Double balance;
+    String status;
 }
