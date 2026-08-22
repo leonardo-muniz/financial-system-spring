@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import br.edu.infnet.leonardomuniz.transaction.application.dto.AccountDto;
 import br.edu.infnet.leonardomuniz.transaction.application.dto.TransactionResponse;
+import br.edu.infnet.leonardomuniz.transaction.domain.exception.AccountBlockedException;
+import br.edu.infnet.leonardomuniz.transaction.domain.exception.AccountClosedException;
 import br.edu.infnet.leonardomuniz.transaction.domain.exception.InsufficientBalanceException;
 import br.edu.infnet.leonardomuniz.transaction.domain.model.Transaction;
 import br.edu.infnet.leonardomuniz.transaction.domain.model.TransactionType;
@@ -28,12 +30,15 @@ public class TransactionService {
 
         AccountDto account = accountClient.getAccount(accountId);
 
+        validateAccountStatus(account);
+
         if (account.getBalance() < amount) throw new InsufficientBalanceException(account.getBalance(), amount);
 
         Transaction tx = Transaction.builder()
             .id(UUID.randomUUID().toString())
             .accountId(accountId)
             .amount(amount)
+            .type(type)
             .status("SUCCESS")
             .build();
 
@@ -41,20 +46,31 @@ public class TransactionService {
                 .transactionId(tx.getId())
                 .accountId(tx.getAccountId())
                 .amount(tx.getAmount())
+                .type(tx.getType())
                 .status(tx.getStatus())
                 .account(account)
                 .build();
     }
 
-    // Fallback chamado quando o Circuit Breaker abre ou o Retry esgota
-    public TransactionResponse fallbackAccount(Long accountId, Double amount, Throwable t) {
+    private void validateAccountStatus(AccountDto account) {
+        if ("BLOCKED".equalsIgnoreCase(account.getStatus()))
+            throw new AccountBlockedException(account.getId());
 
-        return TransactionResponse.builder()
-                .transactionId("N/A")
-                .accountId(accountId)
-                .amount(amount)
-                .status("FAILED_ACCOUNT_SERVICE")
-                .account(null)
-                .build();
+        if ("CLOSED".equalsIgnoreCase(account.getStatus()))
+            throw new AccountClosedException(account.getId());
+
     }
+
+    // Fallback chamado quando o Circuit Breaker abre ou o Retry esgota
+    public TransactionResponse fallbackAccount(Long accountId, Double amount, TransactionType type, Throwable t) {
+
+    return TransactionResponse.builder()
+            .transactionId("N/A")
+            .accountId(accountId)
+            .amount(amount)
+            .type(type)
+            .status("FAILED_ACCOUNT_SERVICE")
+            .account(null)
+            .build();
+}
 }
