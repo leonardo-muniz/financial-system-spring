@@ -10,6 +10,7 @@ import br.edu.infnet.leonardomuniz.transaction.domain.exception.AccountBlockedEx
 import br.edu.infnet.leonardomuniz.transaction.domain.exception.AccountClosedException;
 import br.edu.infnet.leonardomuniz.transaction.domain.exception.InsufficientBalanceException;
 import br.edu.infnet.leonardomuniz.transaction.domain.exception.InvalidTransactionTypeException;
+import br.edu.infnet.leonardomuniz.transaction.domain.exception.MaxTransactionAmountExceededException;
 import br.edu.infnet.leonardomuniz.transaction.domain.model.Transaction;
 import br.edu.infnet.leonardomuniz.transaction.domain.model.TransactionType;
 import br.edu.infnet.leonardomuniz.transaction.infrastructure.client.AccountClient;
@@ -20,6 +21,9 @@ import io.github.resilience4j.retry.annotation.Retry;
 public class TransactionService {
 
     private final AccountClient accountClient;
+
+    // Limites
+    private static final double MAX_TRANSACTION_AMOUNT = 2000.0;
 
     public TransactionService(AccountClient accountClient) {
         this.accountClient = accountClient;
@@ -33,6 +37,7 @@ public class TransactionService {
 
         validateAccountStatus(account);
         validateTransactionType(type);
+        validateMaxAmount(amount);
 
         if (account.getBalance() < amount) throw new InsufficientBalanceException(account.getBalance(), amount);
 
@@ -66,6 +71,11 @@ public class TransactionService {
     private void validateTransactionType(TransactionType type) {
         if (type == null)
             throw new InvalidTransactionTypeException("null");
+    }
+
+    private void validateMaxAmount(Double amount) {
+        if (amount > MAX_TRANSACTION_AMOUNT)
+            throw new MaxTransactionAmountExceededException(amount, MAX_TRANSACTION_AMOUNT);
     }
 
     // Fallback chamado quando o Circuit Breaker abre ou o Retry esgota
