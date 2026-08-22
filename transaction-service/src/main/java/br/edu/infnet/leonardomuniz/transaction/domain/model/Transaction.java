@@ -9,5 +9,6 @@ public class Transaction {
     String id;
     Long accountId;
     Double amount;
+    TransactionType type;
     String status;
 }
