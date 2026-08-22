@@ -49,6 +49,8 @@ public class TransactionService {
 
         if (account.getBalance() < amount) throw new InsufficientBalanceException(account.getBalance(), amount);
 
+        String status = determineStatus(amount);
+        
         Transaction tx = Transaction.builder()
             .id(UUID.randomUUID().toString())
             .accountId(accountId)
@@ -96,6 +98,10 @@ public class TransactionService {
 
     private void updateDailyTotal(Long accountId, Double amount) {
         dailyTotals.put(accountId, dailyTotals.getOrDefault(accountId, 0.0) + amount);
+    }
+
+    private String determineStatus(Double amount) {
+        return amount > 1000.0 ? "REVIEW" : "SUCCESS";
     }
 
     // Fallback chamado quando o Circuit Breaker abre ou o Retry esgota
