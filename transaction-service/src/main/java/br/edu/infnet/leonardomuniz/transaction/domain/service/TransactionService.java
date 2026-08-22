@@ -50,13 +50,13 @@ public class TransactionService {
         if (account.getBalance() < amount) throw new InsufficientBalanceException(account.getBalance(), amount);
 
         String status = determineStatus(amount);
-        
+
         Transaction tx = Transaction.builder()
             .id(UUID.randomUUID().toString())
             .accountId(accountId)
             .amount(amount)
             .type(type)
-            .status("SUCCESS")
+            .status(status)
             .build();
 
         updateDailyTotal(accountId, amount);
@@ -107,13 +107,13 @@ public class TransactionService {
     // Fallback chamado quando o Circuit Breaker abre ou o Retry esgota
     public TransactionResponse fallbackAccount(Long accountId, Double amount, TransactionType type, Throwable t) {
 
-    return TransactionResponse.builder()
-            .transactionId("N/A")
-            .accountId(accountId)
-            .amount(amount)
-            .type(type)
-            .status("FAILED_ACCOUNT_SERVICE")
-            .account(null)
-            .build();
+        return TransactionResponse.builder()
+                .transactionId("N/A")
+                .accountId(accountId)
+                .amount(amount)
+                .type(type)
+                .status("FAILED_ACCOUNT_SERVICE")
+                .account(null)
+                .build();
     }
 }
