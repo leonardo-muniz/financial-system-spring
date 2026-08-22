@@ -47,7 +47,7 @@ public class TransactionService {
         validateMaxAmount(amount);
         validateDailyLimit(accountId, amount);
 
-        if (account.getBalance() < amount) throw new InsufficientBalanceException(account.getBalance(), amount);
+        if (type == TransactionType.DEBIT && account.getBalance() < amount) throw new InsufficientBalanceException(account.getBalance(), amount);
 
         String status = determineStatus(amount);
 
