@@ -72,5 +72,5 @@ public class TransactionService {
             .status("FAILED_ACCOUNT_SERVICE")
             .account(null)
             .build();
-}
+    }
 }
